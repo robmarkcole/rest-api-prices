@@ -17,10 +17,6 @@ raw_pricing = {
     "vat_bands": {"standard": 0.2, "zero": 0},
 }
 
-conversion_rates = {
-    "fake_currency": {"rate": 1.3, "updated": datetime.now()}
-}  # init and show contents
-
 app = Flask(__name__)
 api = Api(app)
 

@@ -67,25 +67,45 @@ def calc_order_details(
     return summary
 
 
-def get_conversion_rate(currency: str):
+class currency_conversion:
     """
-    Get the conversion_rate for a currency relative to GBP.
+    Class to keep track of currency conversion.
+    """
+
+    def __init__(self, api_key: str, default_currency: str = "GBP"):
+        self._api_key = api_key
+        self._default_currency = default_currency
+        self._conversion_rates = {}
+
+    def get_conversion_rate(self, currency: str):
+        """
+        Get the conversion_rate for a currency relative to GBP.
     
-    currency : 3 char str
-    """
-    if currency == "GBP":
-        return 1.0
+        currency : 3 char str
+        """
+        if currency == self._default_currency:
+            return 1.0
 
-    if currency in conversion_rates.keys():
-        if conversion_rates[currency]["updated"] > datetime.now() - timedelta(hours=1):
-            # is up to date, return the rate
-            return conversion_rates[currency]["rate"]
+        if currency in self._conversion_rates.keys():
+            if self._conversion_rates[currency]["updated"] > datetime.now() - timedelta(
+                hours=1
+            ):
+                # is up to date, return the rate
+                return self._conversion_rates[currency]["rate"]
 
-    query = f"GBP_{currency}"
-    url = "https://free.currencyconverterapi.com/api/v6/convert?"
-    rate = get(f"{url}apiKey={CURRENCY_API_KEY}&q={query}&compact=ultra").json()[query]
-    conversion_rates[currency] = {"rate": rate, "updated": datetime.now()}
-    return rate
+        # It is necessary to do a query
+        query = f"GBP_{currency}"
+        url = "https://free.currencyconverterapi.com/api/v6/convert?"
+        rate = get(f"{url}apiKey={CURRENCY_API_KEY}&q={query}&compact=ultra").json()[
+            query
+        ]
+        self._conversion_rates[currency] = {"rate": rate, "updated": datetime.now()}
+        return rate
+
+    @property
+    def conversion_rates(self):
+        """Return the history of conversion rates."""
+        return self._conversion_rates
 
 
 class PricingAPI(Resource):
@@ -95,7 +115,7 @@ class PricingAPI(Resource):
             currency = "GBP"
         else:
             currency = order["order"]["currency"]
-        conversion_rate = get_conversion_rate(currency)
+        conversion_rate = currency_converter.get_conversion_rate(currency)
 
         order_quantities = format_order(order)
         pricing = format_pricing(raw_pricing)
@@ -108,4 +128,5 @@ class PricingAPI(Resource):
 api.add_resource(PricingAPI, "/")
 
 if __name__ == "__main__":
+    currency_converter = currency_conversion(api_key=CURRENCY_API_KEY)
     app.run(debug=True)

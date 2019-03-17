@@ -67,7 +67,7 @@ def calc_order_details(
     return summary
 
 
-def get_conversion_rate(currency: str, conversion_rates: dict = conversion_rates):
+def get_conversion_rate(currency: str):
     """
     Get the conversion_rate for a currency relative to GBP.
     

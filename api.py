@@ -23,13 +23,12 @@ api = Api(app)
 
 def format_pricing(raw_pricing: dict):
     return {
-        product["product_id"]: {
-            "price": product["price"],
-            "VAT": round(
-                raw_pricing["vat_bands"][product["vat_band"]] * product["price"], 2
-            ),
-        }
-        for product in raw_pricing["prices"]
+        prod["product_id"]: product(
+            prod["product_id"],
+            prod["price"],
+            raw_pricing["vat_bands"][prod["vat_band"]],
+        )
+        for prod in raw_pricing["prices"]
     }
 
 
@@ -38,7 +37,7 @@ def format_order(order: dict):
 
 
 def calc_order_details(
-    order_quantities: dict, pricing: dict, currency: str, conversion_rate: float = 1.0
+    order_quantities: dict, pricing: dict, conversion_rate: float, currency: str
 ):
     summary = {}
     running_total_price = 0
@@ -49,18 +48,37 @@ def calc_order_details(
         quantity = order_quantities[product_id]
         summary[product_id]["quantity"] = quantity
 
-        total_price = quantity * pricing[product_id]["price"] * conversion_rate
-        summary[product_id]["total_price"] = round(total_price, 2)
+        total_price = round(quantity * pricing[product_id].price * conversion_rate, 2)
+        summary[product_id]["total_price"] = total_price
         running_total_price += total_price
 
-        total_vat = quantity * pricing[product_id]["VAT"] * conversion_rate
-        summary[product_id]["total_VAT"] = round(total_vat, 2)
+        total_vat = round(quantity * pricing[product_id].VAT * conversion_rate, 2)
+        summary[product_id]["total_VAT"] = total_vat
         running_total_vat += total_vat
 
-    summary["total_price"] = round(running_total_price, 2)
-    summary["total_VAT"] = round(running_total_vat, 2)
     summary["currency"] = currency
+    summary["total_price"] = running_total_price
+    summary["total_VAT"] = running_total_vat
     return summary
+
+
+class product:
+    """
+    Class to encapsulate a product.
+    """
+
+    def __init__(self, product_id: int, price: float, vat_rate: float):
+        self._product_id = product_id
+        self._price = price
+        self._vat_rate = vat_rate
+
+    @property
+    def price(self):
+        return self._price
+
+    @property
+    def VAT(self):
+        return round(self._price * self._vat_rate, 2)
 
 
 class currency_conversion:
@@ -121,7 +139,7 @@ class PricingAPI(Resource):
         order_quantities = format_order(order)
         pricing = format_pricing(raw_pricing)
         order_details = calc_order_details(
-            order_quantities, pricing, currency, conversion_rate
+            order_quantities, pricing, conversion_rate, currency
         )
         return order_details
 

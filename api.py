@@ -89,8 +89,8 @@ def get_conversion_rate(currency: str, conversion_rates: dict = conversion_rates
 
 
 class PricingAPI(Resource):
-    def get(self, order):
-        order = json.loads(order)
+    def post(self):
+        order = json.loads(request.form['data'])
         if not "currency" in order["order"].keys():
             currency = "GBP"
         else:
@@ -105,7 +105,7 @@ class PricingAPI(Resource):
         return order_details
 
 
-api.add_resource(PricingAPI, "/<string:order>")
+api.add_resource(PricingAPI, "/")
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -90,7 +90,7 @@ class currency_conversion:
                 return self._conversion_rates[currency]["rate"]
 
         # It is necessary to do a query
-        query = f"GBP_{currency}"
+        query = f"{self._default_currency}_{currency}"
         url = "https://free.currencyconverterapi.com/api/v6/convert?"
         rate = get(f"{url}apiKey={CURRENCY_API_KEY}&q={query}&compact=ultra").json()[
             query
@@ -103,12 +103,17 @@ class currency_conversion:
         """Return the history of conversion rates."""
         return self._conversion_rates
 
+    @property
+    def default_currency(self):
+        """Return the default_currency."""
+        return self._default_currency
+
 
 class PricingAPI(Resource):
     def post(self):
         order = request.get_json(force=True)
         if not "currency" in order["order"].keys():
-            currency = "GBP"
+            currency = currency_converter.default_currency
         else:
             currency = order["order"]["currency"]
         conversion_rate = currency_converter.get_conversion_rate(currency)

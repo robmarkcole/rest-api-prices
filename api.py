@@ -148,4 +148,5 @@ api.add_resource(PricingAPI, "/")
 
 if __name__ == "__main__":
     currency_converter = currency_conversion(api_key=CURRENCY_API_KEY)
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host='0.0.0.0')

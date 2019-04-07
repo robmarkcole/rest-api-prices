@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from requests import get
 import json
 
-CURRENCY_API_KEY = "834dbbebf0270311fc5d"
+CURRENCY_API_KEY = "834dbbebf0270123g311fc5d"
 
 raw_pricing = {
     "prices": [

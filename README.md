@@ -49,7 +49,7 @@ Note that the monetary values in the pricing.json file are in pennies GBP and th
 
 ## Going international
 
-In this hypothetical universe we've decided to launch tails.com overseas, and want the pricing service to be able to return equivalent prices in any given currency using the latest available exchange rate data.
+In this hypothetical universe we've decided to launch our website overseas, and want the pricing service to be able to return equivalent prices in any given currency using the latest available exchange rate data.
 
 Expand the API to allow the currency to be passed in as part of the request, and return the equivalent price in that currency. How that currency code is passed in is up to you. Use a currency conversion rate API like [https://free.currencyconverterapi.com/](https://free.currencyconverterapi.com/) to get the latest exchange rates as part of your solution. (Hint: you might want to think about how to cache that data).
 
